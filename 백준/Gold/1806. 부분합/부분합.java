@@ -1,63 +1,55 @@
 import java.io.*;
 import java.util.*;
 
+
 public class Main {
-    static int N, result;
-    static long S;
-    static int[] arr;
-    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    public static int N, M, Result = 987654321;
+    public static int[] Arr;
 
     public static void main(String[] args) throws IOException {
         String[] temp = br.readLine().split(" ");
         N = Integer.parseInt(temp[0]);
-        S = Long.parseLong(temp[1]);
-        arr = new int[N];
-        result = Integer.MAX_VALUE;
+        M = Integer.parseInt(temp[1]);
+        Arr = new int[N];
         temp = br.readLine().split(" ");
-        for (int i = 0; i < N; i++) {
-            arr[i] = Integer.parseInt(temp[i]);
+        for(int i=0;i<N;i++){
+            Arr[i] = Integer.parseInt(temp[i]);
         }
-        int start = 0, end = 0;
-        long sum = 0;
-        while (true) {
-            if (end == N && sum < S) {
-                break;
-            } else if (end == N && sum >= S) {
-                for (int i = start; i < end; i++) {
-                    if (sum >= S) {
-                        result = Math.min(result, end - start);
-                        sum -= arr[i];
-                        start = i + 1;
-                    } else {
-                        break;
-                    }
+        int start = 0;
+        int end = 0;
+        int cnt = 1;
+        int sum = Arr[start];
+        while(start<=end){
+            if(end==N-1){
+                if(M>sum){
+                    break;
+                }else{//합이 M보다 큰 경우
+                    Result = Math.min(Result,cnt);
+                    cnt--;
+                    sum-=Arr[start];
+                    start++;
                 }
-                break;
-            } else {
-                if (sum < S) {
-                    sum += arr[end];
+            }else{
+                if(M>sum){
+                    cnt++;
                     end++;
-                } else {//S이하로 만들어주기
-                    for (int i = start; i < end; i++) {
-                        if (sum >= S) {
-                            result = Math.min(result, end - start);
-                            sum -= arr[i];
-                            start = i + 1;
-                        } else {
-                            break;
-                        }
-                    }
+                    sum+=Arr[end];
+                }else{//합이 M보다 큰 경우
+                    Result = Math.min(Result,cnt);
+                    cnt--;
+                    sum-=Arr[start];
+                    start++;
                 }
             }
+
         }
-        if (result == Integer.MAX_VALUE) {
-            result = 0;
-        }
-        bw.write(result + "\n");
+        if(Result==987654321)
+            Result=0;
+        bw.write(Result+"\n");
         bw.flush();
         bw.close();
+
     }
-
-
 }
