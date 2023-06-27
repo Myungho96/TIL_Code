@@ -22,26 +22,17 @@ public class Main {
         int cnt = 1;
         int sum = Arr[start];
         while(start<=end){
-            if(end==N-1){
-                if(M>sum){
+            if(M>sum){
+                if(end==N-1)
                     break;
-                }else{//합이 M보다 큰 경우
-                    Result = Math.min(Result,cnt);
-                    cnt--;
-                    sum-=Arr[start];
-                    start++;
-                }
-            }else{
-                if(M>sum){
-                    cnt++;
-                    end++;
-                    sum+=Arr[end];
-                }else{//합이 M보다 큰 경우
-                    Result = Math.min(Result,cnt);
-                    cnt--;
-                    sum-=Arr[start];
-                    start++;
-                }
+                cnt++;
+                end++;
+                sum+=Arr[end];
+            }else{//합이 M보다 큰 경우
+                Result = Math.min(Result,cnt);
+                cnt--;
+                sum-=Arr[start];
+                start++;
             }
 
         }
