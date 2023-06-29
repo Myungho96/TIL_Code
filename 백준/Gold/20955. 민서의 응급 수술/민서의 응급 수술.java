@@ -18,14 +18,9 @@ public class Main {
         make();
         for (int i = 0; i < M; i++) {
             temp = br.readLine().split(" ");
-//            union(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]));
             if (!union(Integer.parseInt(temp[0]), Integer.parseInt(temp[1])))
                 cnt++;
         }
-//        System.out.println(Arrays.toString(parents));
-//        for (int i : Parents) {
-//            Sets.add(i);
-//        }
 
         for (int i = 1; i <= N; i++){
 //            if(!Sets.contains(Parents[i])){
@@ -33,8 +28,8 @@ public class Main {
 //            }
             if(i==find(i)) cnt++;
         }
-//        System.out.println(Sets);
-        bw.write( - 1 + cnt  + "\n");
+        bw.write( - 1 + cnt+"\n");
+//        bw.write( - 1 + cnt  + Sets.size()+"\n");
         bw.flush();
         bw.close();
     }
