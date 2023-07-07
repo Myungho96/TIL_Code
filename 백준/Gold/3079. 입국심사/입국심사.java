@@ -30,6 +30,7 @@ public class Main {
             cnt = 0;
             for (int i = 0; i < N; i++) {
                 cnt += mid / arr[i];
+                if(cnt>=M)break;
             }
             if (cnt < M) {
                 left = mid + 1;
