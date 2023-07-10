@@ -1,174 +1,86 @@
-import java.io.*;
 import java.lang.*;
+import java.io.*;
+import java.sql.Array;
 import java.util.*;
 
-public class Main {
-    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    static StringTokenizer st;
-    static int N, M, max = Integer.MIN_VALUE;
-    static int[][] arr;
 
+public class Main {
+    public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    public static int Result = 0, Max = 0;
+    public static int[][] Deltas = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    public static int[][] Deltas2 = {{-1, 1}, {-1, -1}, {-1, -1}, {1, -1}};
 
     public static void main(String[] args) throws IOException {
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        arr = new int[N][M];
+        String[] temp = br.readLine().split(" ");
+        int N = Integer.parseInt(temp[0]);
+        int M = Integer.parseInt(temp[1]);
+
+        int[][] arr = new int[N][M];
         for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
+            temp = br.readLine().split(" ");
             for (int j = 0; j < M; j++) {
-                arr[i][j] = Integer.parseInt(st.nextToken());
+                arr[i][j] = Integer.parseInt(temp[j]);
+                Max = Math.max(Max, arr[i][j]);
             }
         }
-        solution();
-        bw.write(max + "\n");
+        boolean[][] visited = new boolean[N][M];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                visited[i][j] = true;
+                dfs(0, 0, i, j, visited, arr);
+                visited[i][j] = false;
+            }
+        }
+        bw.write(Result + "\n");
         bw.flush();
         bw.close();
+
     }
 
-    private static void solution() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (isInA1(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 2][j] + arr[i + 3][j]);
-                }
-                if (isInA2(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i][j + 2] + arr[i][j + 3]);
-                }
-                if (isInB(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i + 1][j] + arr[i + 1][j + 1]);
-                }
-                if (isInC1(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 2][j] + arr[i + 2][j + 1]);
-                }
-                if (isInC2(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i][j + 2] + arr[i + 1][j]);
-                }
-                if (isInC3(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i + 1][j + 1] + arr[i + 2][j + 1]);
-                }
-                if (isInC4(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i][j + 2] + arr[i - 1][j + 2]);
-                }
-                if (isInC5(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 2][j] + arr[i + 2][j - 1]);
-                }
-                if (isInC6(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j + 1] + arr[i + 1][j + 2] + arr[i + 1][j]);
-                }
-                if (isInC7(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i + 1][j] + arr[i + 2][j]);
-                }
-                if (isInC8(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i][j + 2] + arr[i + 1][j + 2]);
-                }
-                if (isInD1(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 1][j + 1] + arr[i + 2][j + 1]);
-                }
-                if (isInD2(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i - 1][j + 1] + arr[i - 1][j + 2]);
-                }
-                if (isInD3(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 1][j - 1] + arr[i + 2][j - 1]);
-                }
-                if (isInD4(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i + 1][j + 1] + arr[i + 1][j + 2]);
-                }
-                if (isInE1(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 2][j] + arr[i + 1][j + 1]);
-                }
-                if (isInE2(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i][j + 2] + arr[i + 1][j + 1]);
-                }
-                if (isInE3(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i + 1][j] + arr[i + 2][j] + arr[i + 1][j - 1]);
-                }
-                if (isInE4(i, j)) {
-                    max = Math.max(max, arr[i][j] + arr[i][j + 1] + arr[i][j + 2] + arr[i - 1][j + 1]);
+    public static void dfs(int cnt, int sum, int r, int c, boolean[][] visited, int[][] arr) {
+        if (Result > sum + (4 - cnt) * Max)
+            return;
+        int N = visited.length;
+        int M = visited[0].length;
+        if (cnt == 4) {
+            Result = Math.max(Result, sum);
+            return;
+        } else if (cnt == 3) {
+            //ㅗ자 만들 수 있는지 체크
+            if (r - 2 >= 0 && visited[r - 1][c] && visited[r - 2][c]) {
+                for (int i = 0; i < 2; i++) {
+                    int cr = r + Deltas2[i][0];
+                    int cc = c + Deltas2[i][1];
+                    if (cr >= 0 && cc >= 0 && cr < N && cc < M && !visited[cr][cc] && visited[cr][cc - Deltas2[i][1]]) {
+                        visited[cr][cc] = true;
+                        dfs(cnt + 1, sum + arr[cr][cc], cr, cc, visited, arr);
+                        visited[cr][cc] = false;
+                    }
                 }
 
+            } else if (c - 2 >= 0 && visited[r][c - 1] && visited[r][c - 2]) {
+                for (int i = 2; i < 4; i++) {
+                    int cr = r + Deltas2[i][0];
+                    int cc = c + Deltas2[i][1];
+                    if (cr >= 0 && cc >= 0 && cr < N && cc < M && !visited[cr][cc] && visited[cr - Deltas2[i][0]][cc]) {
+                        visited[cr][cc] = true;
+                        dfs(cnt + 1, sum + arr[cr][cc], cr, cc, visited, arr);
+                        visited[cr][cc] = false;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int cr = r + Deltas[i][0];
+            int cc = c + Deltas[i][1];
+            if (cr >= 0 && cc >= 0 && cr < N && cc < M && !visited[cr][cc]) {
+                visited[cr][cc] = true;
+                dfs(cnt + 1, sum + arr[cr][cc], cr, cc, visited, arr);
+                visited[cr][cc] = false;
             }
         }
     }
-
-    private static boolean isInE1(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 2, nc) && isIn(nr + 1, nc + 1);
-    }
-
-    private static boolean isInE2(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr, nc + 2) && isIn(nr + 1, nc + 1);
-    }
-
-    private static boolean isInE3(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 2, nc) && isIn(nr + 1, nc - 1);
-    }
-
-    private static boolean isInE4(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr, nc + 2) && isIn(nr - 1, nc + 1);
-    }
-
-    private static boolean isInD1(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 1, nc + 1) && isIn(nr + 2, nc + 1);
-    }
-
-    private static boolean isInD2(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr - 1, nc + 1) && isIn(nr - 1, nc + 2);
-    }
-
-    private static boolean isInD3(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 1, nc - 1) && isIn(nr + 2, nc - 1);
-    }
-
-    private static boolean isInD4(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr + 1, nc + 1) && isIn(nr + 1, nc + 2);
-    }
-
-    private static boolean isInC1(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 2, nc) && isIn(nr + 2, nc + 1);
-    }
-
-    private static boolean isInC2(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr, nc + 1) && isIn(nr, nc + 2);
-    }
-
-    private static boolean isInC3(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr + 1, nc + 1) && isIn(nr + 2, nc + 1);
-    }
-
-    private static boolean isInC4(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr, nc + 2) && isIn(nr - 1, nc + 2);
-    }
-
-    private static boolean isInC5(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 2, nc) && isIn(nr + 2, nc - 1);
-    }
-
-    private static boolean isInC6(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 1, nc + 1) && isIn(nr + 1, nc + 2);
-    }
-
-    private static boolean isInC7(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr + 1, nc) && isIn(nr + 2, nc);
-    }
-
-    private static boolean isInC8(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr, nc + 2) && isIn(nr + 1, nc + 2);
-    }
-
-    private static boolean isInB(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr, nc + 1) && isIn(nr + 1, nc + 1);
-    }
-
-    private static boolean isInA1(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr + 1, nc) && isIn(nr + 2, nc) && isIn(nr + 3, nc);
-    }
-
-    private static boolean isInA2(int nr, int nc) {
-        return isIn(nr, nc) && isIn(nr, nc + 1) && isIn(nr, nc + 2) && isIn(nr, nc + 3);
-    }
-
-    private static boolean isIn(int nr, int nc) {
-        return nr >= 0 && nc >= 0 && nr < N && nc < M;
-    }
 }
+
