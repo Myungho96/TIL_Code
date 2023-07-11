@@ -25,45 +25,60 @@ public class Main {
 
         int result = 987654321;
         int cnt = 0;
-        for(int i=1;i<=H;i++){
+        for (int i = 1; i <= H; i++) {
 
 //            int num1 =  Arrays.binarySearch(arr1,i);
-            int num1 =  binarySearch(arr1,i);
-            if(num1<0){
-                num1 = -(num1+1);
+            int num1 = binarySearch(arr1, i);
+            if (num1 < 0) {
+                num1 = -(num1 + 1);
             }
 //            int num2 = Arrays.binarySearch(arr2,i-1);
-            int num2 = binarySearch(arr2,i);
-            if(num2<0){
-                num2=-(num2+1);
+            int num2 = binarySearch(arr2, i);
+            if (num2 < 0) {
+                num2 = -(num2 + 1);
             }
-            int tempResult = (N/2-num1)+num2;
-            if(result==tempResult){
+            int tempResult = (N / 2 - num1) + num2;
+            if (result == tempResult) {
                 cnt++;
-            }else if(result>tempResult){
+            } else if (result > tempResult) {
                 result = tempResult;
-                cnt=1;
+                cnt = 1;
             }
         }
-        bw.write(result+" "+cnt+"\n");
+        bw.write(result + " " + cnt + "\n");
         bw.flush();
         bw.close();
 
     }
 
-    public static int binarySearch(int [] arr, int target) {
+    public static int binarySearch(int[] arr, int target) {
         int low = 0;
-        int high = arr.length;
-        while (low < high) {
-            final int mid = low + (high - low)/2;
-            if (target <= arr[mid]) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
+        int high = arr.length-1;
+
+        while (low <= high) {
+            int mid = (low + high) >> 1;
+            int midVal = arr[mid];
+            if (midVal < target) low = mid + 1;
+//			else if(midVal == key)  return mid;
+                //같으면 high가 줄어드니까 -> 로우는 안줄어들 -> lower_bound 역할
+            else high = mid - 1;
         }
+
         return low;
     }
+//    public static int binarySearch(int [] arr, int target) {
+//        int low = 0;
+//        int high = arr.length;
+//        while (low < high) {
+//            final int mid = low + (high - low)/2;
+//            if (target <= arr[mid]) {
+//                high = mid;
+//            } else {
+//                low = mid + 1;
+//            }
+//        }
+//        return low;
+//    }
 
 }
 
