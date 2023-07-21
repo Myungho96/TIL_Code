@@ -1,80 +1,74 @@
-import java.io.*;
 import java.lang.*;
+import java.io.*;
 import java.util.*;
 
 public class Main {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    static int Result = 987654321;
+    static int[][] Deltas = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    static int[][] Horse = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
 
-	public static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-	public static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-	public static int N, M, K, min = Integer.MAX_VALUE;
-	public static int[][] deltas = { { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
-	public static int[][] horse = { { -2, -1 }, { -1, -2 }, { 1, -2 }, { 2, -1 }, { 2, 1 }, { 1, 2 }, { -1, 2 },
-			{ -2, 1 } };
-	public static boolean[][][] visited;
-	public static int[][] arr;
-	public static StringTokenizer st;
+    public static void main(String[] args) throws IOException {
+        int k = Integer.parseInt(br.readLine());
+        String[] temp = br.readLine().split(" ");
+        int[][] arr = new int[Integer.parseInt(temp[1])][Integer.parseInt(temp[0])];
+        for (int i = 0; i < arr.length; i++) {
+            temp = br.readLine().split(" ");
+            for (int j = 0; j < arr[0].length; j++) {
+                arr[i][j] = Integer.parseInt(temp[j]);
+            }
+        }
+        boolean[][][] visited = new boolean[arr.length][arr[0].length][k+1];
+        bfs(k, arr, visited);
+        bw.write((Result == 987654321 ? -1 : Result) + "\n");
+        bw.flush();
+        bw.close();
+    }
 
-	public static void main(String[] args) throws IOException {
-		K = Integer.parseInt(br.readLine());
-		st = new StringTokenizer(br.readLine());
-		M = Integer.parseInt(st.nextToken());
-		N = Integer.parseInt(st.nextToken());
-		arr = new int[N][M];
-		visited = new boolean[N][M][K+1];
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < M; j++) {
-				arr[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-//		for (int i = 0; i < N; i++) {
-//			System.out.println(Arrays.toString(arr[i]));
-//		}
-		bfs(0, 0, 0, 0);
-		if(min==Integer.MAX_VALUE)
-			min=-1;
-		bw.write(min+"\n");
-		bw.flush();
-		bw.close();
+    static void bfs(int k, int[][] arr, boolean[][][] visited) {
+        int n = arr.length;
+        int m = arr[0].length;
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(new Node(0, 0, 0, 0));
+        visited[0][0][0] = true;
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+            if (node.r == n - 1 && node.c == m - 1){
+                Result = Math.min(Result, node.cnt);
+                return;
+            }
+            //k가 기준 이하면 대각선 방향 뛰어서 큐에 추가
+            if (node.k < k) {
+                for (int h = 0; h < 8; h++) {
+                    int cr = node.r + Horse[h][0];
+                    int cc = node.c + Horse[h][1];
+                    if (cr >= 0 && cc >= 0 && cr < n && cc < m && arr[cr][cc] != 1 && !visited[cr][cc][node.k + 1]) {
+                        visited[cr][cc][node.k + 1] = true;
+                        queue.offer(new Node(cr, cc, node.k + 1, node.cnt + 1));
+                    }
+                }
+            }
+            //사방탐색은 정상적으로 수행.
+            for (int d = 0; d < 4; d++) {
+                int cr = node.r + Deltas[d][0];
+                int cc = node.c + Deltas[d][1];
+                if (cr >= 0 && cc >= 0 && cr < n && cc < m && arr[cr][cc] != 1 && !visited[cr][cc][node.k]) {
+                    visited[cr][cc][node.k] = true;
+                    queue.offer(new Node(cr, cc, node.k, node.cnt + 1));
+                }
+            }
+        }
+    }
 
-	}
+    static class Node {
+        int r, c, k, cnt;
 
-	private static void bfs(int r, int c, int cnt, int move) {
-		Queue<int[]> queue = new LinkedList<>();
-		queue.offer(new int[] { r, c, 0, 0 });
-		visited[r][c][0] = true;
-		while (!queue.isEmpty()) {
-			int[] monkey = queue.poll();
-			if (monkey[0] == N - 1 && monkey[1] == M - 1) {
-				min = Math.min(min, monkey[3]);
-				return;
-			}
-
-			if (monkey[2] < K) {// 8방탐색 수행
-				for (int h = 0; h < 8; h++) {
-					int nr = monkey[0] + horse[h][0];
-					int nc = monkey[1] + horse[h][1];
-					if (isIn(nr, nc) && !visited[nr][nc][monkey[2]+1] && arr[nr][nc] != 1) {
-						visited[nr][nc][monkey[2]+1] = true;
-						queue.offer(new int[] { nr, nc, monkey[2] + 1, monkey[3] + 1 });
-					}
-
-				}
-			}
-			for (int d = 0; d < 4; d++) {
-				int nr = monkey[0] + deltas[d][0];
-				int nc = monkey[1] + deltas[d][1];
-				if (isIn(nr, nc) && !visited[nr][nc][monkey[2]] && arr[nr][nc] != 1) {
-					visited[nr][nc][monkey[2]] = true;
-					queue.offer(new int[] { nr, nc, monkey[2], monkey[3] + 1 });
-				}
-			}
-		}
-
-	}
-
-	private static boolean isIn(int nr, int nc) {
-		return nr >= 0 && nc >= 0 && nr < N && nc < M;
-	}
-
+        public Node(int r, int c, int k, int cnt) {
+            this.r = r;
+            this.c = c;
+            this.k = k;
+            this.cnt = cnt;
+        }
+    }
 }
