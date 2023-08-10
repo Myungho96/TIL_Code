@@ -11,7 +11,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         int num = Integer.parseInt(br.readLine());
         int[][][] arr = new int[num][6][7];
-//        System.out.println(Arrays.toString(arr));
         for (int n = 0; n < num; n++) {
             String[] temp = br.readLine().split(" ");
             for (int i = 0; i < 6; i++) {
@@ -45,36 +44,33 @@ public class Main {
                     arr[n][i][6] = Math.max(Math.max(arr[n][i][2], arr[n][i][1]), Math.max(arr[n][i][3], arr[n][i][4]));
                 }
             }
-
-
         }
         //위아래 빼면 결국 최댓값은 6번에 저장된 값이 된다.
-        int[] visited = new int[num];
-        dfs(0,0,0, arr);
-
+        dfs(0, 0, 0, arr);
         bw.write(Result + "\n");
         bw.flush();
         bw.close();
         br.close();
     }
 
-    private static void dfs(int cnt,int sum,int lastUp, int[][][] arr) {
+    private static void dfs(int cnt, int sum, int lastUp, int[][][] arr) {
         int num = arr.length;
+        if (Result >= (num - cnt) * 6 + sum)
+            return;
         if (cnt == num) {
-            Result = Math.max(sum,Result);
+            Result = Math.max(sum, Result);
             return;
         }
-        for(int i=0;i<6;i++){
-            if(cnt==0){
-                dfs(cnt+1,sum+arr[cnt][i][6],arr[cnt][i][0],arr);
-            }else{
+        for (int i = 0; i < 6; i++) {
+            if (cnt == 0) {
+                dfs(cnt + 1, sum + arr[cnt][i][6], arr[cnt][i][0], arr);
+            } else {
                 //현재 주사위 아랫면과 직전 주사위 윗면이 같은지 비교
-                if(arr[cnt][i][5] == lastUp){
-                    dfs(cnt+1,sum+arr[cnt][i][6],arr[cnt][i][0],arr);
+                if (arr[cnt][i][5] == lastUp) {
+                    dfs(cnt + 1, sum + arr[cnt][i][6], arr[cnt][i][0], arr);
                 }
             }
         }
-
 
 
     }
