@@ -17,17 +17,13 @@ public class Main {
         treeMap.put(1,0);
         for (int i = 2; i <= num; i++) {
             if (!visited[i]) {
-                if (i == 2)
-                    treeMap.put(i, i);
-                else
-                    treeMap.put(i, treeMap.lastEntry().getValue() + i);
+                treeMap.put(i, treeMap.lastEntry().getValue() + i);
                 int cnt = 2;
                 while (i * cnt <= num) {
                     visited[i * (cnt++)] = true;
                 }
             }
         }
-//        System.out.println(treeMap);
         int[] arr = new int[treeMap.size()];
         int idx = 0;
         for (int temp : treeMap.keySet()) {
@@ -36,7 +32,6 @@ public class Main {
         for (int i = 0; i < arr.length; i++) {
             for (int j = i + 1; j < arr.length; j++) {
                 if(treeMap.get(arr[j]) - treeMap.get(arr[i]) == num){
-//                    System.out.println(arr[j]+" "+arr[i]);
                     Result++;
                 }else if(treeMap.get(arr[j]) - treeMap.get(arr[i]) > num){
                     break;
