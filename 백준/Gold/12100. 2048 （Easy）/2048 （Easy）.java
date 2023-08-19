@@ -38,11 +38,9 @@ public class Main {
         //상하좌우 이동시키고 DFS
         for (int i = 0; i < 4; i++) {
             tempArr = new int[n][n];
-//            copyArr(arr, tempArr, n);
             int temp = solve(i, arr, tempArr, n);
             dfs(cnt + 1, Math.max(temp, max), n, tempArr);
         }
-
     }
 
     private static int solve(int signal, int[][] arr, int[][] tempArr, int n) {
@@ -83,7 +81,7 @@ public class Main {
                 for (int i = n - 1; i >= 0; i--) {
                     queue[j].offer(arr[i][j]);
                 }
-            }//밑에 수정해야됨
+            }
             for (int j = 0; j < n; j++) {
                 int idx = n - 1;
                 while (!queue[j].isEmpty()) {
@@ -162,11 +160,5 @@ public class Main {
             }
         }
         return max;
-    }
-
-    private static void copyArr(int[][] arr, int[][] tempArr, int n) {
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                tempArr[i][j] = arr[i][j];
     }
 }
