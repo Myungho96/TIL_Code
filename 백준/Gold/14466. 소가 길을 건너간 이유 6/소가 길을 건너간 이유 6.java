@@ -1,80 +1,83 @@
 import java.io.*;
 import java.util.*;
 
+
 public class Main {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    static int N, K, R;
-    static int[][] Arr;
-    static boolean[][][][] road;
-    static int [][]deltas = {{0,1},{0,-1},{1,0},{-1,0}};
+    static int Result;
+    static boolean[][] cowMap;
+    static int[][] Deltas = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    static boolean[][][][] roads;
 
     public static void main(String[] args) throws IOException {
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
-        R = Integer.parseInt(st.nextToken());
-        Arr = new int[N + 1][N + 1];
-        road = new boolean[N + 1][N + 1][N + 1][N + 1];
-        for (int i = 0; i < R; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            int d = Integer.parseInt(st.nextToken());
-            road[a][b][c][d] = true;
-            road[c][d][a][b] = true;
+        String[] temp = br.readLine().split(" ");
+        int n = Integer.parseInt(temp[0]);
+        int k = Integer.parseInt(temp[1]);
+        int r = Integer.parseInt(temp[2]);
+        roads = new boolean[n + 1][n + 1][n + 1][n + 1];
+        cowMap = new boolean[n + 1][n + 1];
+
+        for (int i = 0; i < r; i++) {
+            temp = br.readLine().split(" ");
+            roads[Integer.parseInt(temp[0])][Integer.parseInt(temp[1])][Integer.parseInt(temp[2])][Integer.parseInt(temp[3])] = true;
+            roads[Integer.parseInt(temp[2])][Integer.parseInt(temp[3])][Integer.parseInt(temp[0])][Integer.parseInt(temp[1])] = true;
         }
-        List<Node> cows = new ArrayList<>();
-        for (int i = 0; i < K; i++) {
-            st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            cows.add(new Node(a, b));
-            Arr[a][b] = 1;
+
+        Result = k * (k - 1);
+        List<Node> lists = new ArrayList<>();
+        for (int i = 0; i < k; i++) {
+            temp = br.readLine().split(" ");
+            lists.add(new Node(Integer.parseInt(temp[0]), Integer.parseInt(temp[1])));
+            cowMap[Integer.parseInt(temp[0])][Integer.parseInt(temp[1])] = true;
         }
-        int cnt = K*(K-1);
-        for (Node node:cows) {
-            cnt-=bfs(node);
+        for (Node node : lists) {
+            bfs(node, n);
         }
-        bw.write(cnt/2+"\n");
+        bw.write(Result/2 + "\n");
         bw.flush();
         bw.close();
+        br.close();
     }
 
-    private static int bfs(Node node) {
-        int cnt = 0;
+    static void bfs(Node start, int n) {
         Queue<Node> queue = new ArrayDeque<>();
-        boolean [][]visited = new boolean[N+1][N+1];
-        queue.offer(new Node(node.x, node.y));
-        visited[node.x][node.y] = true;
-        while (!queue.isEmpty()){
-            Node temp = queue.poll();
-            if(Arr[temp.x][temp.y] == 1 && !(temp.x==node.x && temp.y == node.y))
-                cnt++;
-            for (int i = 0; i < 4; i++) {
-                int cr = temp.x + deltas[i][0];
-                int cc = temp.y + deltas[i][1];
-                if(isIn(cr,cc) && !visited[cr][cc])
-                    if(!road[temp.x][temp.y][cr][cc] && !road[cr][cc][temp.x][temp.y]){
-                        visited[cr][cc] = true;
-                        queue.offer(new Node(cr,cc));
-                    }
+        boolean[][] visited = new boolean[n + 1][n + 1];
+        queue.offer(start);
+        visited[start.r][start.c] = true;
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+            //소가 있는데 본인이 아니면
+            if (cowMap[node.r][node.c] && !node.equals(start)){
+                Result--;
+            }
+            //사방탐색
+            for(int i=0;i<4;i++){
+                int cr = node.r+Deltas[i][0];
+                int cc = node.c+Deltas[i][1];
+                if(cr>0 && cc>0 && cr<=n && cc<=n && !roads[node.r][node.c][cr][cc] && !visited[cr][cc]){
+                    visited[cr][cc] = true;
+                    queue.offer(new Node(cr,cc));
+                }
             }
         }
 
-        return cnt;
     }
-    private static boolean isIn(int x, int y) {
-        return x > 0 && y > 0 && x <= N && y <= N;
-    }
-    static class Node {
-        private int x;
-        private int y;
 
-        public Node(int x, int y) {
-            this.x = x;
-            this.y = y;
+    static class Node {
+        int r, c;
+
+        public Node(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+
+        public boolean equals(Node o) {
+            return this.r == o.r && this.c == o.c;
         }
     }
+
+
 }
+
+
