@@ -1,122 +1,140 @@
 import java.io.*;
 import java.util.*;
-import java.lang.*;
 
 public class Main {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    static int[][][][] arr;
-    static String[] temp;
-    static int[][] deltas = {{-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}};
-    static int min;
-    public static void main(String[] args) throws Exception {
-        min = Integer.MAX_VALUE;
-        arr = new int[5][5][5][4];
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                temp = br.readLine().split(" ");
-                for (int k = 0; k < 5; k++) {
-                    arr[i][j][k][0] = Integer.parseInt(temp[k]);
+    static Queue<Integer>[] queue = new Queue[5];
+    static int Result = 987654321;
+    static int[][] Deltas = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+
+    public static void main(String[] args) throws IOException {
+        //몇번째 블록, 행,열,돌렸을때의 값
+        int[][][][] arr = new int[5][4][5][5];
+        for (int t = 0; t < 5; t++) {
+            for (int i = 0; i < 5; i++) {
+                String[] temp = br.readLine().split(" ");
+                for (int j = 0; j < 5; j++) {
+                    arr[t][0][i][j] = Integer.parseInt(temp[j]);
                 }
             }
         }
-        rocation();
-        DFS(0, new int[5]);
-        if (min == Integer.MAX_VALUE) {
-            min = -1;
+        //돌린것도 넣어주기
+        for (int i = 1; i < 4; i++) {
+            turn(i, arr);
         }
-        bw.write(min + "\n");
+
+        //순서 정하기
+        permu(0, new HashMap<>(), new HashMap<>(), new boolean[5], arr);
+        bw.write((Result == 987654321 ? -1 : Result) + "\n");
         bw.flush();
         bw.close();
+        br.close();
     }
 
-    static void rocation() {
-        for (int i = 0; i < 5; i++) {
-            for (int T = 1; T < 4; T++) {
-                for (int j = 0; j < 5; j++) {
-                    for (int k = 0; k < 5; k++) {
-                        arr[i][j][k][T] = arr[i][k][4 - j][T - 1];
-                    }
-                }
-            }
-        }
-    }
-
-    static void DFS(int cnt, int[] rocationNumber) {
+    private static void permu(int cnt, HashMap<Integer, Integer> order, HashMap<Integer, Integer> floor, boolean[] visited, int[][][][] arr) {
         if (cnt == 5) {
-            //회전 경우의 수가 나온 상태, 판들을 순열로 정렬해서 map을 만들어 주고 그 map에서 bfs를 수행하면 된다.
-            perm(0, rocationNumber, new boolean[5], new int[5]);
-            return;
-        }
-        for (int i = 0; i < 4; i++) {
-            rocationNumber[cnt] = i;
-            DFS(cnt + 1, rocationNumber);
-        }
-    }
-
-    static void perm(int cnt, int[] rocationNumber, boolean[] visited, int[] stackNumber) {
-        if (cnt == 5) {
-            //완성된 순열이 온 상황, 회전수 리스트도 존재하므로 map을 만들어주어야 한다.
-            int[][][] map = new int[5][5][5];
-            for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < 5; j++) {
-                    for (int k = 0; k < 5; k++) {
-                        map[i][j][k] = arr[stackNumber[i]][j][k][rocationNumber[stackNumber[i]]];
-                    }
-                }
-            }
-            if (map[0][0][0] == 1)
-                bfs(map);
+            solveDir(0, new int[5], order, floor, arr);
             return;
         }
         for (int i = 0; i < 5; i++) {
             if (!visited[i]) {
                 visited[i] = true;
-                stackNumber[cnt] = i;
-                perm(cnt + 1, rocationNumber, visited, stackNumber);
+                order.put(cnt, i);//1번째 2 이런식으로 저장
+                floor.put(i, cnt);//2는 첫번째
+                permu(cnt + 1, order, floor, visited, arr);
                 visited[i] = false;
             }
         }
     }
 
-    static void bfs(int[][][] map) {
-        Queue<Node> queue = new ArrayDeque<>();
-        boolean[][][] visited = new boolean[5][5][5];
-        queue.offer(new Node(0, 0, 0, 0));
-        visited[0][0][0] = true;
-        while (!queue.isEmpty()) {
-            Node node = queue.poll();
-            if (node.cnt > min) return;//더 진행해도 최소가 될 수 없다.
-            if (node.i == 4 && node.j == 4 && node.k == 4 && map[4][4][4] == 1) {//도착했다면 그동안의 cnt를 min에 저장한다.
-                min = Math.min(min, node.cnt);
-                return;
-            }
-            for (int d = 0, size = deltas.length; d < size; d++) {//사방 + 위아래 탐색!
-                int ci = node.i + deltas[d][0];
-                int cj = node.j + deltas[d][1];
-                int ck = node.k + deltas[d][2];
-                int count = node.cnt;
-
-                if (isIn(ci, cj, ck, map) && !visited[ci][cj][ck]) {
-                    visited[ci][cj][ck] = true;
-                    queue.offer(new Node(ci, cj, ck, count + 1));
-                }
-            }
-        }
-    }
-
-    static boolean isIn(int i, int j, int k, int[][][] map) {
-        return i >= 0 && j >= 0 && k >= 0 && i < 5 && j < 5 && k < 5 && map[i][j][k] != 0;
-    }
-
     static class Node {
-        int i, j, k, cnt;
+        int floor, r, c, cnt;
 
-        public Node(int i, int j, int k, int cnt) {
-            this.i = i;
-            this.j = j;
-            this.k = k;
+        public Node(int floor, int r, int c, int cnt) {
+            this.floor = floor;
+            this.r = r;
+            this.c = c;
             this.cnt = cnt;
         }
     }
+
+    public static void bfs(int[] dir, HashMap<Integer, Integer> order, HashMap<Integer, Integer> floor, int[][][][] arr) {
+        Queue<Node> que = new LinkedList<>();
+        boolean[][][] visited = new boolean[5][5][5];
+
+        que.offer(new Node(order.get(0), 0, 0, 0));
+        visited[order.get(0)][0][0] = true;
+        while (!que.isEmpty()) {
+            Node node = que.poll();
+            if (node.cnt > Result) return;
+            if (node.floor == order.get(4) && node.r == 4 && node.c == 4) {
+                Result = Math.min(node.cnt, Result);
+                return;
+            }
+            //사방탐색
+            for (int i = 0; i < 4; i++) {
+                int cr = node.r + Deltas[i][0];
+                int cc = node.c + Deltas[i][1];
+                if (cr >= 0 && cc >= 0 && cr < 5 && cc < 5 && !visited[node.floor][cr][cc] && arr[node.floor][dir[node.floor]][cr][cc] == 1) {
+                    visited[node.floor][cr][cc] = true;
+                    que.offer(new Node(node.floor, cr, cc, node.cnt + 1));
+                }
+
+            }
+            //위아래 갈 수 있는지 탐색 -> floor 활용
+            int currentFloor = floor.get(node.floor);
+            //아래부터 체크
+            if (currentFloor + 1 < 5 && !visited[order.get(currentFloor + 1)][node.r][node.c] && arr[order.get(currentFloor + 1)][dir[order.get(currentFloor + 1)]][node.r][node.c] == 1) {
+                visited[order.get(currentFloor + 1)][node.r][node.c] = true;
+                que.offer(new Node(order.get(currentFloor + 1), node.r, node.c, node.cnt + 1));
+            }
+            if (currentFloor - 1 >= 0 && !visited[order.get(currentFloor - 1)][node.r][node.c] && arr[order.get(currentFloor - 1)][dir[order.get(currentFloor - 1)]][node.r][node.c] == 1) {
+                visited[order.get(currentFloor - 1)][node.r][node.c] = true;
+                que.offer(new Node(order.get(currentFloor - 1), node.r, node.c, node.cnt + 1));
+            }
+        }
+
+
+    }
+
+
+    private static void solveDir(int cnt, int[] dir, HashMap<Integer, Integer> order, HashMap<Integer, Integer> floor, int[][][][] arr) {
+        if (cnt == 5) {
+            if(arr[order.get(0)][dir[order.get(0)]][0][0] == 1)
+                bfs(dir, order, floor, arr);
+            return;
+        }
+        for (int i = 0; i < 4; i++) {
+            dir[cnt] = i;
+            solveDir(cnt + 1, dir, order, floor, arr);
+        }
+
+    }
+
+    private static void turn(int dir, int[][][][] arr) throws IOException {
+        for (int t = 0; t < 5; t++) {
+
+            for (int i = 0; i < 5; i++) {
+                //큐 초기화
+                queue[i] = new ArrayDeque<>();
+                for (int j = 0; j < 5; j++) {
+                    //직전 dir 담기
+                    queue[i].offer(arr[t][dir - 1][i][j]);
+                }
+            }
+            int idx = 0;
+            for (int j = 4; j >= 0; j--) {
+                for (int i = 0; i < 5; i++) {
+                    arr[t][dir][i][j] = queue[idx].poll();
+                }
+                idx++;
+            }
+
+        }
+
+    }
 }
+
+
