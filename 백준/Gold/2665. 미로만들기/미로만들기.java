@@ -2,35 +2,33 @@ import java.io.*;
 import java.util.PriorityQueue;
 
 public class Main {
-    static int N;
-    static boolean[][] visited;
-    static int[][] arr;
-    static int[][] deltas = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    static int[][] Deltas = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    static int Result = 0;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
     public static void main(String[] args) throws IOException {
-        N = Integer.parseInt(br.readLine());
-        arr = new int[N][N];
-        visited = new boolean[N][N];
+        int n = Integer.parseInt(br.readLine());
+        int[][] arr = new int[n][n];
         String[] temp;
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < n; i++) {
             temp = br.readLine().split("");
-            for (int j = 0; j < N; j++) {
+            for (int j = 0; j < n; j++) {
                 arr[i][j] = Integer.parseInt(temp[j]);
             }
         }
-        bw.write(bfs() + "\n");
+        bfs(n,arr);
+        bw.write(Result + "\n");
         bw.flush();
         bw.close();
     }
 
     static class Node implements Comparable<Node> {
-        int x, y, cnt;
-
-        public Node(int x, int y, int cnt) {
-            this.x = x;
-            this.y = y;
+        int r, c, cnt;
+        
+        Node(int r, int c, int cnt){
+            this.r = r;
+            this.c = c;
             this.cnt = cnt;
         }
 
@@ -40,21 +38,23 @@ public class Main {
         }
     }
 
-    private static int bfs() {
+    private static void bfs(int n, int [][]arr) {
         PriorityQueue<Node> queue = new PriorityQueue<>();
+        boolean [][]visited = new boolean[n][n];
         queue.offer(new Node(0, 0, 0));
         while (!queue.isEmpty()) {
             Node node = queue.poll();
-            if (visited[node.x][node.y])
+            if (visited[node.r][node.c])
                 continue;
-            else if (node.x == N - 1 && node.y == N - 1) {
-                return node.cnt;
+            visited[node.r][node.c] = true;
+            if (node.r == n - 1 && node.c == n - 1) {
+                Result = node.cnt;
+                return;
             }
-            visited[node.x][node.y] = true;
             for (int i = 0; i < 4; i++) {
-                int cr = node.x + deltas[i][0];
-                int cc = node.y + deltas[i][1];
-                if (isin(cr, cc)) {
+                int cr = node.r + Deltas[i][0];
+                int cc = node.c + Deltas[i][1];
+                if (cr>=0 && cc>=0 && cr<n && cc<n) {
                     if (arr[cr][cc] == 1) {
                         queue.offer(new Node(cr, cc, node.cnt));
                     } else {
@@ -63,11 +63,6 @@ public class Main {
                 }
             }
         }
-        return 0;
-    }
-
-    private static boolean isin(int r, int c) {
-        return r >= 0 && c >= 0 && r < N && c < N;
     }
 
 }
